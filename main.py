@@ -1,13 +1,10 @@
-from tkinter import *
 import customtkinter
 import yfinance as yf
 import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 import threading
 from CTkMessagebox import CTkMessagebox
-#blank txt cap, y-axis *100 change to percent gain/loss
 #Default watchlist dictionary
 watchlistDict = {'AAPL': None, 
                  'TSLA': None,
@@ -58,7 +55,7 @@ chartFrame.grid(row=1, column=0, columnspan=3)
 # Init fig
 fig = plt.figure(figsize=(15,10), facecolor='#2e3233')
 chartCanvas = FigureCanvasTkAgg(fig, master=chartFrame)
-chartCanvas.get_tk_widget().pack(fill=BOTH, expand=True)
+chartCanvas.get_tk_widget().pack(fill=customtkinter.BOTH, expand=True)
 
 
 #Creating lambda functions with different index numbers for each watchlist remove button
@@ -73,7 +70,7 @@ def createAddCmd(ticker):
 def addCmd(ticker):
     # ticker = chartName.cget('text')
     if ticker.upper() in watchlistDict:
-        CTkMessagebox(master =root, title="Error", message="Stock Already in Watchlist", icon="cancel")
+        CTkMessagebox(master=root, title="Error", message="Stock Already in Watchlist", icon="cancel")
     else:
         watchlistDict[ticker] = None
         updateDictValues()
@@ -119,9 +116,10 @@ def searchCmd(event=None):
         ticker = tickerEntry.get().upper()
         stockList.append(ticker)
         graphData()
-        tickerEntry.delete(0, END)
+        tickerEntry.delete(0, customtkinter.END)
+
     else:
-        CTkMessagebox(master =root, title="Error", message="Graph Limit Reached (5/5)", icon="cancel")
+        CTkMessagebox(master=root, title="Error", message="Graph Limit Reached (5/5)", icon="cancel")
 
 tickerEntry = customtkinter.CTkEntry(mainFrame, placeholder_text="Ticker Symbol")
 tickerEntry.bind('<Return>', command=searchCmd)
@@ -156,7 +154,7 @@ def updateGraphData():
             for index, ticker in enumerate(stockList):
                 #Get data, scale price, + plot data
                 tickerData = yf.download(ticker, start=startDate, end=endDate)
-                scaledPrice = (tickerData['Close'] / tickerData['Close'].iloc[0]) -1
+                scaledPrice = ((tickerData['Close'] / tickerData['Close'].iloc[0]) -1) *100
                 plt.plot(tickerData.index, scaledPrice, label=ticker)
 
                 #Update GUI
